@@ -1,0 +1,129 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>美味餐廳 - 點餐系統</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>美味餐廳</h1>
+    <p>探索我們的精選菜單，享受美食的樂趣！</p>
+  </header>
+
+  <section id="menu">
+    <h2>菜單介紹</h2>
+    <div class="menu-container">
+      <div class="menu-item">
+        <img src="https://www.cmmedia.com.tw/file/52518/1627015282_100097_main_content_4686e630-92f6-4013-833b-1ca2718a9def.jpg" alt="義大利麵">
+        <h3>經典義大利麵</h3>
+        <p>新鮮番茄醬與香草，搭配手工麵條，口感豐富。</p>
+        <p class="price">NT$250</p>
+        <button class="add-to-cart" data-item="義大利麵" data-price="250">加入購物車</button>
+      </div>
+      <div class="menu-item">
+        <img src="https://mibaoma.tw/wp-content/uploads/pixnet/1524552350-3766031394_l.jpg" alt="牛排">
+        <h3>炭烤牛排</h3>
+        <p>頂級肋眼牛排，搭配特製醬汁，肉質鮮嫩多汁。</p>
+        <p class="price">NT$450</p>
+        <button class="add-to-cart" data-item="牛排" data-price="450">加入購物車</button>
+      </div>
+      <div class="menu-item">
+ <img src="https://i2.chuimg.com/7415eacfabf94396ba4d4d319812f8b2_1280w_959h.jpg?imageView2/2/w/660/interlace/1/q/75" alt="巧克力熔岩蛋糕">
+        <h3>巧克力熔岩蛋糕</h3>
+        <p>濃郁巧克力內餡，搭配香草冰淇淋，甜蜜享受。</p>
+        <p class="price">NT$150</p>
+        <button class="add-to-cart" data-item="巧克力熔岩蛋糕" data-price="150">加入購物車</button>
+      </div>
+      <div class="menu-item">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQIdLMnWKYBcPKpdskUMfkuh1rJXp2B9eJpIsny6RNFx-8Y4DfJh6HrK9SWXGDVqAR28qlrcAfBDbi1bzV_GTrGbB71enFWRlLAx5oQf8hoz9MEz6PDD6ltolKT4FfuLNZYy5uk78YekY/s1600/3.jpg" alt="凱薩沙拉">
+        <h3>清爽凱薩沙拉</h3>
+        <p>新鮮羅曼生菜，搭配凱薩醬和帕瑪森起司，清爽開胃。</p>
+        <p class="price">NT$180</p>
+        <button class="add-to-cart" data-item="凱薩沙拉" data-price="180">加入購物車</button>
+      </div>
+      <div class="menu-item">
+        <img src="https://shoplineimg.com/566bfb31e37ec66e5f000003/5bf2df1d482a930012b3e3c2/800x.webp?source_format=jpg" alt="海鮮燉飯">
+        <h3>海鮮燉飯</h3>
+        <p>鮮蝦、魷魚與蛤蜊，慢燉米飯吸收海鮮精華，香氣四溢。</p>
+        <p class="price">NT$320</p>
+        <button class="add-to-cart" data-item="海鮮燉飯" data-price="320">加入購物車</button>
+      </div>
+      <div class="menu-item">
+        <img src="https://www.nespresso.com/ncp/res/uploads/recipes/Global_All_OL_BaristaCreations_IcedRosemaryLatte_Caramel_2019_0000_1900px.jpg" alt="冰拿鐵咖啡">
+        <h3>冰拿鐵咖啡</h3>
+        <p>濃郁咖啡與絲滑牛奶完美融合，清涼提神。</p>
+        <p class="price">NT$120</p>
+        <button class="add-to-cart" data-item="冰拿鐵咖啡" data-price="120">加入購物車</button>
+      </div>
+      <div class="menu-item">
+        <img src="https://picx.zhimg.com/v2-8bbbd6460a24a54552ffa0e5637b5f19_1440w.jpg?source=172ae18b" alt="芒果果昔">
+        <h3>芒果果昔</h3>
+        <p>新鮮芒果與酸奶攪拌，甜美濃郁，夏日必備。</p>
+        <p class="price">NT$140</p>
+        <button class="add-to-cart" data-item="芒果果昔" data-price="140">加入購物車</button>
+      </div>
+      <div class="menu-item">
+        <img src="https://www.healingdaily.com.tw/media/article/00/07/722_62d00208b947.jpeg" alt="檸檬氣泡水">
+        <h3>檸檬氣泡水</h3>
+        <p>清新檸檬與氣泡水的結合，酸甜爽口。</p>
+        <p class="price">NT$90</p>
+        <button class="add-to-cart" data-item="檸檬氣泡水" data-price="90">加入購物車</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="cart">
+    <h2>購物車</h2>
+    <ul id="cart-items"></ul>
+    <p id="cart-total">總計: NT$0</p>
+    <button id="clear-cart">清空購物車</button>
+  </section>
+
+  <footer>
+    <p>© 2025 美味餐廳. 版權所有.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
